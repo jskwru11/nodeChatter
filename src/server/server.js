@@ -16,13 +16,15 @@ app.use(express.static(publicPath));
 io.on('connection', (socket) => {
     console.log(`New User connected`);
 
-    socket.emit('newMessage', {
-        from: 'jerry',
-        text: 'hey you still on for next week?',
-        createdAt: 1234
-    });
+    socket.on('createMessage', (message => {
+        console.log(`Received a new message: ${JSON.stringify(message, undefined, 2)}`);
 
-    socket.on('createMessage', (message => console.log(`Received a new message: ${JSON.stringify(message, undefined, 2)}`)));
+        io.emit('newMessage', {
+            from: message.from,
+            text: message.text,
+            createdAt: new Date().getTime()
+        });
+    }));
 
     socket.on('disconnect', () => {
         console.log('User disconnected');
