@@ -12,7 +12,7 @@ socket.on('disconnect', function() {
 });
 
 socket.on('newMessage', function(message) {
-    $('#chat').append($('<li>').text(`${message.from}: ${message.text}`));
+    $('#messages').append($('<li>').text(`${message.from}: ${message.text}`));
     console.log(`You have a new message: ${JSON.stringify(message, undefined, 2)}`);
 });
 
@@ -22,21 +22,20 @@ socket.on('newLocationMessage', function(locationData) {
     li.text(`${locationData.from}: `);
     a.attr('href', locationData.url)
     li.append(a);
-    $('#chat').append(li);
+    $('#messages').append(li);
 
 });
 
 
 
-$('#formSubmit').on('submit', function(event) {
+$('#message-form').on('submit', function(event) {
     event.preventDefault();
-    const sender = $('#from').val();
-    const message = $('#message').val();
+    const message = $('#message');
     socket.emit('createMessage', {
-        from: sender,
-        text: message
-    }, function(data) {
-        console.log(`I have recieved the data: ${JSON.stringify(data, undefined, 2)}`);
+        from: 'User',
+        text: message.val()
+    }, function() {
+        message.val('');
     });
 });
 
@@ -48,13 +47,19 @@ locationBtn.on('click', function(event) {
             console.log('you have an error');
         });
     }
+    locationBtn.text('Sending Location...');
+    locationBtn.attr('disabled', true);
     navigator.geolocation.getCurrentPosition(function (position) {
         socket.emit('createLocationMessage', {
             lat: position.coords.latitude,
             lng: position.coords.longitude
         });
+        locationBtn.removeAttr('disabled');
+        locationBtn.text('Send Location');
     }, function (error) {
         bootbox.alert('Unable to fetch location.', function () {
+            locationBtn.removeAttr('disabled');
+            locationBtn.text('Send Location');
             console.log('you have an error');
         });
     });

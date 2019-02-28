@@ -23,9 +23,7 @@ io.on('connection', (socket) => {
         console.log(`Received a new message: ${JSON.stringify(message, undefined, 2)}`);
 
         io.emit('newMessage', messageGenerator(message.from, message.text));
-        callback({
-            ack: 'This is from the server'
-        });
+        callback();
 
         // socket.broadcast.emit('newMessage', {
         //         from: message.from,
